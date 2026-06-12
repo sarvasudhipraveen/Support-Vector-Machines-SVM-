@@ -1,0 +1,50 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+# Load pasted text dataset
+df = pd.read_csv(
+    "/content/Social_Network_Ads.csv"
+)
+
+print(df.head())
+print(df.info())
+
+# Encode Gender
+le = LabelEncoder()
+df["Gender"] = le.fit_transform(df["Gender"])   # Male=1, Female=0
+
+# Features and target
+X = df[["Gender", "Age", "EstimatedSalary"]]
+y = df["Purchased"]
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, random_state=42
+)
+
+# Feature scaling
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# SVM kernels
+kernels = ["linear", "poly", "rbf"]
+
+for kernel in kernels:
+    print("\n============================")
+    print("Kernel:", kernel)
+
+    model = SVC(kernel=kernel, C=1.0, gamma="scale")
+    model.fit(X_train, y_train)
+
+    y_pred = model.predict(X_test)
+
+    print("Accuracy:", accuracy_score(y_test, y_pred))
+    print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+    print("Classification Report:\n", classification_report(y_test, y_pred))
